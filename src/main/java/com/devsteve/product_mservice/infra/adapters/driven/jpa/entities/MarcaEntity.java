@@ -4,10 +4,10 @@ import jakarta.persistence.*;
 import lombok.*;
 
 @Entity
-@Table(name = "categorias")
+@Table(name = "marcas")
 @NoArgsConstructor @AllArgsConstructor
 @Getter @Setter @Builder
-public class CategoriaEntity {
+public class MarcaEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
