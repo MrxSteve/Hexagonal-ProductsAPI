@@ -13,7 +13,8 @@ public class CategoriaService implements
         BuscarCategoriaPorIdUseCase,
         ActualizarCategoriaUseCase,
         EliminarCategoriaUseCase,
-        BuscarCategoriaPorNombreUseCase {
+        BuscarCategoriaPorNombreUseCase,
+        ObtenerNombreCategoriaUseCase{
     private final CategoriaRepository categoriaRepository;
 
     public CategoriaService(CategoriaRepository categoriaRepository) {
@@ -63,5 +64,10 @@ public class CategoriaService implements
     @Override
     public List<CategoriaModel> buscarPorNombre(String nombre, int page, int size) {
         return categoriaRepository.buscarPorNombre(nombre, page, size);
+    }
+
+    @Override
+    public String obtenerNombrePorId(Long id) {
+        return categoriaRepository.buscarPorId(id).getNombre();
     }
 }

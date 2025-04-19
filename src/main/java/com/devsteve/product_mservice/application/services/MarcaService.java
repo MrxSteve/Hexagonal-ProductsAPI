@@ -13,7 +13,8 @@ public class MarcaService implements
         BuscarMarcaPorIdUseCase,
         ActualizarMarcaUseCase,
         EliminarMarcaUseCase,
-        BuscarMarcaPorNombreUseCase {
+        BuscarMarcaPorNombreUseCase,
+        ObtenerNombreMarcaUseCase{
     private final MarcaRepository marcaRepository;
 
     public MarcaService(MarcaRepository marcaRepository) {
@@ -63,5 +64,10 @@ public class MarcaService implements
     @Override
     public List<MarcaModel> buscarPorNombre(String nombre, int page, int size) {
         return marcaRepository.buscarPorNombre(nombre, page, size);
+    }
+
+    @Override
+    public String obtenerNombrePorId(Long id) {
+        return marcaRepository.buscarPorId(id).getNombre();
     }
 }

@@ -42,4 +42,9 @@ public class MarcaBeanConfiguration {
     public BuscarMarcaPorNombreUseCase buscarMarcaPorNombreUseCase(MarcaService service) {
         return service;
     }
+
+    @Bean
+    public ObtenerNombreMarcaUseCase obtenerNombreMarcaUseCase(MarcaService service) {
+        return service;
+    }
 }

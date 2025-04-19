@@ -42,4 +42,9 @@ public class CategoriaBeanConfiguration {
     public BuscarCategoriaPorNombreUseCase buscarCategoriaPorNombreUseCase(CategoriaService service) {
         return service;
     }
+
+    @Bean
+    public ObtenerNombreCategoriaUseCase obtenerNombreCategoriaUseCase(CategoriaService service) {
+        return service;
+    }
 }

@@ -1,4 +1,4 @@
-package com.devsteve.product_mservice.infra.adapters.drivers.rest;
+package com.devsteve.product_mservice.infra.adapters.drivers.rest.controllers;
 
 import com.devsteve.product_mservice.application.dto.req.MarcaRequest;
 import com.devsteve.product_mservice.application.dto.res.MarcaResponse;
