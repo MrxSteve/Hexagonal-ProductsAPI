@@ -1,5 +1,7 @@
 package com.devsteve.product_mservice.infra.config;
 
+import com.devsteve.product_mservice.application.ports.in.categoria.BuscarCategoriaPorIdUseCase;
+import com.devsteve.product_mservice.application.ports.in.marca.BuscarMarcaPorIdUseCase;
 import com.devsteve.product_mservice.application.ports.in.producto.crud.*;
 import com.devsteve.product_mservice.application.ports.in.producto.filters.*;
 import com.devsteve.product_mservice.application.services.ProductoService;
@@ -10,8 +12,10 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 public class ProductoBeanConfiguration {
     @Bean
-    public ProductoService productoService(ProductoRepository productoRepository) {
-        return new ProductoService(productoRepository);
+    public ProductoService productoService(ProductoRepository productoRepository,
+                                           BuscarMarcaPorIdUseCase buscarMarcaPorIdUseCase,
+                                           BuscarCategoriaPorIdUseCase buscarCategoriaPorIdUseCase) {
+        return new ProductoService(productoRepository, buscarMarcaPorIdUseCase, buscarCategoriaPorIdUseCase);
     }
 
     @Bean

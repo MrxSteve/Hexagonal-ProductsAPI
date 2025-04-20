@@ -2,6 +2,7 @@ package com.devsteve.product_mservice.infra.adapters.drivers.rest.controllers;
 
 import com.devsteve.product_mservice.shared.exceptions.DuplicateResourceException;
 import com.devsteve.product_mservice.shared.exceptions.ErrorResponse;
+import com.devsteve.product_mservice.shared.exceptions.MultipleErrorsException;
 import com.devsteve.product_mservice.shared.exceptions.ResourceNotFoundException;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.HttpStatus;
@@ -47,6 +48,20 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ErrorResponse> handleNoHandlerFound(NoHandlerFoundException ex, HttpServletRequest request) {
         return buildError(HttpStatus.NOT_FOUND, "Ruta no encontrada: " + request.getRequestURI(), request.getRequestURI());
     }
+
+    // Manejo de errores multiples
+    @ExceptionHandler(MultipleErrorsException.class)
+    public ResponseEntity<ErrorResponse> handleMultipleErrors(MultipleErrorsException ex, HttpServletRequest request) {
+        ErrorResponse error = new ErrorResponse(
+                HttpStatus.BAD_REQUEST.value(),
+                HttpStatus.BAD_REQUEST.getReasonPhrase(),
+                "Se encontraron errores en la solicitud",
+                request.getRequestURI(),
+                ex.getErrores() // Detalles
+        );
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
+    }
+
 
     private ResponseEntity<ErrorResponse> buildError(HttpStatus status, String mensaje, String path) {
         ErrorResponse error = new ErrorResponse(status.value(), status.getReasonPhrase(), mensaje, path);

@@ -1,13 +1,18 @@
 package com.devsteve.product_mservice.application.services;
 
+import com.devsteve.product_mservice.application.ports.in.categoria.BuscarCategoriaPorIdUseCase;
+import com.devsteve.product_mservice.application.ports.in.marca.BuscarMarcaPorIdUseCase;
 import com.devsteve.product_mservice.application.ports.in.producto.crud.*;
 import com.devsteve.product_mservice.application.ports.in.producto.filters.*;
 import com.devsteve.product_mservice.domain.model.ProductoModel;
 import com.devsteve.product_mservice.domain.model.enums.EstadoProducto;
 import com.devsteve.product_mservice.domain.ports.out.ProductoRepository;
 import com.devsteve.product_mservice.shared.exceptions.DuplicateResourceException;
+import com.devsteve.product_mservice.shared.exceptions.MultipleErrorsException;
+import com.devsteve.product_mservice.shared.exceptions.ResourceNotFoundException;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -19,21 +24,42 @@ public class ProductoService implements
         EliminarProductoUseCase,
         BuscarProductosPorFiltrosUseCase {
     private final ProductoRepository productoRepository;
+    private final BuscarMarcaPorIdUseCase buscarMarcaPorIdUseCase;
+    private final BuscarCategoriaPorIdUseCase buscarCategoriaPorIdUseCase;
 
-    public ProductoService(ProductoRepository productoRepository) {
+    public ProductoService(ProductoRepository productoRepository,
+                           BuscarMarcaPorIdUseCase buscarMarcaPorIdUseCase,
+                           BuscarCategoriaPorIdUseCase buscarCategoriaPorIdUseCase) {
         this.productoRepository = productoRepository;
+        this.buscarMarcaPorIdUseCase = buscarMarcaPorIdUseCase;
+        this.buscarCategoriaPorIdUseCase = buscarCategoriaPorIdUseCase;
     }
 
     @Override
     public ProductoModel crearProducto(ProductoModel productoModel) {
+        List<String> errores = new ArrayList<>();
+
         if (productoRepository.existePorNombre(productoModel.getNombre())) {
-            throw new DuplicateResourceException("Ya existe un producto con el nombre " + productoModel.getNombre());
+            errores.add("Ya existe un producto con el nombre " + productoModel.getNombre());
         }
 
-        // Por defecto el producto inicia como ACTIVO
-        productoModel.setEstado(EstadoProducto.ACTIVO);
+        try {
+            buscarMarcaPorIdUseCase.buscarPorId(productoModel.getMarcaId());
+        } catch (ResourceNotFoundException e) {
+            errores.add("Marca no encontrada con id: " + productoModel.getMarcaId());
+        }
 
-        // Establecer la fecha
+        try {
+            buscarCategoriaPorIdUseCase.buscarPorId(productoModel.getCategoriaId());
+        } catch (ResourceNotFoundException e) {
+            errores.add("Categoria no encontrada con id: " + productoModel.getCategoriaId());
+        }
+
+        if (!errores.isEmpty()) {
+            throw new MultipleErrorsException(errores);
+        }
+
+        productoModel.setEstado(EstadoProducto.ACTIVO);
         productoModel.setFechaCreacion(LocalDateTime.now());
 
         return productoRepository.guardar(productoModel);
@@ -52,13 +78,35 @@ public class ProductoService implements
     @Override
     public ProductoModel actualizarProducto(Long id, ProductoModel model) {
         ProductoModel existente = buscarPorId(id);
+        List<String> errores = new ArrayList<>();
 
         if (model.getNombre() != null &&
                 productoRepository.existePorNombre(model.getNombre()) &&
                 !existente.getNombre().equalsIgnoreCase(model.getNombre())) {
-            throw new DuplicateResourceException("Ya existe un producto con el nombre " + model.getNombre());
+            errores.add("Ya existe un producto con el nombre " + model.getNombre());
         }
 
+        if (model.getMarcaId() != null) {
+            try {
+                buscarMarcaPorIdUseCase.buscarPorId(model.getMarcaId());
+            } catch (ResourceNotFoundException e) {
+                errores.add("Marca no encontrada con id: " + model.getMarcaId());
+            }
+        }
+
+        if (model.getCategoriaId() != null) {
+            try {
+                buscarCategoriaPorIdUseCase.buscarPorId(model.getCategoriaId());
+            } catch (ResourceNotFoundException e) {
+                errores.add("Categoria no encontrada con id: " + model.getCategoriaId());
+            }
+        }
+
+        if (!errores.isEmpty()) {
+            throw new MultipleErrorsException(errores);
+        }
+
+        // Actualizar solo los campos no nulos
         if (model.getNombre() != null) {
             existente.setNombre(model.getNombre());
         }
