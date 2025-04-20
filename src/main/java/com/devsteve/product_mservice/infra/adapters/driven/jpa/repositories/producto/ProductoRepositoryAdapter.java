@@ -50,7 +50,7 @@ public class ProductoRepositoryAdapter implements ProductoRepository {
     @Override
     public void eliminar(Long id) {
         this.buscarPorId(id);
-        jpaProductoRepository.findById(id);
+        jpaProductoRepository.deleteById(id);
     }
 
     @Override
