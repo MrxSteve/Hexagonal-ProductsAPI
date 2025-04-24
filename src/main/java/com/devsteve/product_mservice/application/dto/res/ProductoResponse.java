@@ -4,6 +4,7 @@ import com.devsteve.product_mservice.domain.model.enums.EstadoProducto;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.List;
 
 public class ProductoResponse {
     private Long id;
@@ -19,6 +20,8 @@ public class ProductoResponse {
 
     private EstadoProducto estado;
     private LocalDateTime fechaCreacion;
+
+    private List<ImagenResponse> imagenes;
 
     public Long getId() {
         return id;
@@ -98,5 +101,13 @@ public class ProductoResponse {
 
     public void setFechaCreacion(LocalDateTime fechaCreacion) {
         this.fechaCreacion = fechaCreacion;
+    }
+
+    public List<ImagenResponse> getImagenes() {
+        return imagenes;
+    }
+
+    public void setImagenes(List<ImagenResponse> imagenes) {
+        this.imagenes = imagenes;
     }
 }

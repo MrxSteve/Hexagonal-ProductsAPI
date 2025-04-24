@@ -2,13 +2,16 @@ package com.devsteve.product_mservice.infra.adapters.drivers.rest.controllers;
 
 import com.devsteve.product_mservice.application.dto.req.CreateProductoRequest;
 import com.devsteve.product_mservice.application.dto.req.UpdateProductoRequest;
+import com.devsteve.product_mservice.application.dto.res.ImagenResponse;
 import com.devsteve.product_mservice.application.dto.res.ProductoResponse;
 import com.devsteve.product_mservice.application.ports.in.categoria.ObtenerNombreCategoriaUseCase;
+import com.devsteve.product_mservice.application.ports.in.images.ListarImagenesPorProductoUseCase;
 import com.devsteve.product_mservice.application.ports.in.marca.ObtenerNombreMarcaUseCase;
 import com.devsteve.product_mservice.application.ports.in.producto.crud.*;
 import com.devsteve.product_mservice.application.ports.in.producto.filters.BuscarProductosPorFiltrosUseCase;
 import com.devsteve.product_mservice.domain.model.ProductoModel;
 import com.devsteve.product_mservice.domain.model.enums.EstadoProducto;
+import com.devsteve.product_mservice.infra.adapters.driven.jpa.mappers.images.ImagenModelMapper;
 import com.devsteve.product_mservice.infra.adapters.driven.jpa.mappers.producto.ProductoModelMapper;
 import com.devsteve.product_mservice.infra.adapters.drivers.rest.assembler.ProductoResponseAssembler;
 import jakarta.validation.Valid;
@@ -30,6 +33,10 @@ public class ProductoController {
     private final ListarProductosUseCase listarProductosUseCase;
     private final BuscarProductosPorFiltrosUseCase buscarProductosPorFiltrosUseCase;
     private final ProductoModelMapper productoModelMapper;
+
+    // Servicio para listar imagenes por producto
+    private final ListarImagenesPorProductoUseCase listarImagenesPorProductoUseCase;
+    private final ImagenModelMapper imagenModelMapper;
 
     // Servicios auxiliares para obtener nombres
     private final ObtenerNombreMarcaUseCase obtenerNombreMarcaUseCase;
@@ -102,6 +109,13 @@ public class ProductoController {
     private ProductoResponse mapearProductoConNombres(ProductoModel producto) {
         String marcaNombre = obtenerNombreMarcaUseCase.obtenerNombrePorId(producto.getMarcaId());
         String categoriaNombre = obtenerNombreCategoriaUseCase.obtenerNombrePorId(producto.getCategoriaId());
-        return ProductoResponseAssembler.toResponse(producto, marcaNombre, categoriaNombre);
+
+        // Buscar imagenes asociadas
+        List<ImagenResponse> imagenes = listarImagenesPorProductoUseCase.listarImagenes(producto.getId())
+                .stream()
+                .map(imagenModelMapper::toResponse)
+                .toList();
+
+        return ProductoResponseAssembler.toResponse(producto, marcaNombre, categoriaNombre, imagenes);
     }
 }
