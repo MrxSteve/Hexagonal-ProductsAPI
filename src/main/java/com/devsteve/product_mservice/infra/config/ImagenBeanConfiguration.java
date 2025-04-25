@@ -5,14 +5,17 @@ import com.devsteve.product_mservice.application.ports.in.producto.crud.BuscarPr
 import com.devsteve.product_mservice.application.services.ImagenService;
 import com.devsteve.product_mservice.domain.ports.out.ImagenRepository;
 import com.devsteve.product_mservice.domain.ports.out.ImagenStoragePort;
+import com.devsteve.product_mservice.domain.ports.out.ProductoValidatorPort;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 @Configuration
 public class ImagenBeanConfiguration {
     @Bean
-    public ImagenService imagenService(ImagenRepository repo, ImagenStoragePort storage, BuscarProductoPorIdUseCase buscarProductoPorIdUseCase) {
-        return new ImagenService(repo, storage, buscarProductoPorIdUseCase);
+    public ImagenService imagenService(ImagenRepository imagenRepository,
+                                       ImagenStoragePort imagenStoragePort,
+                                       ProductoValidatorPort productoValidatorPort) {
+        return new ImagenService(imagenRepository, imagenStoragePort, productoValidatorPort);
     }
 
     @Bean

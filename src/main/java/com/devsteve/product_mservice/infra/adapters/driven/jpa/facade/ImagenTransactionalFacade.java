@@ -1,6 +1,7 @@
 package com.devsteve.product_mservice.infra.adapters.driven.jpa.facade;
 
 import com.devsteve.product_mservice.application.ports.in.images.*;
+import com.devsteve.product_mservice.application.ports.in.producto.delegate.EliminarImagenesProductoDelegate;
 import com.devsteve.product_mservice.domain.model.ImagenModel;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
@@ -17,7 +18,8 @@ public class ImagenTransactionalFacade implements
         EliminarImagenDeProductoUseCase,
         EliminarTodasImagenesDeProductoUseCase,
         ListarImagenesPorProductoUseCase,
-        BuscarImagenPorIdUseCase {
+        BuscarImagenPorIdUseCase,
+        EliminarImagenesProductoDelegate {
     private final SubirImagenUseCase subirImagenUseCase;
     private final EliminarImagenPorIdUseCase eliminarImagenPorIdUseCase;
     private final EliminarImagenDeProductoUseCase eliminarImagenDeProductoUseCase;
@@ -59,5 +61,11 @@ public class ImagenTransactionalFacade implements
     @Transactional
     public ImagenModel subirImagen(Long productoId, MultipartFile file) {
         return subirImagenUseCase.subirImagen(productoId, file);
+    }
+
+    @Override
+    @Transactional
+    public void eliminarImagenesDeProducto(Long productoId) {
+        eliminarTodasImagenesDeProductoUseCase.eliminarTodasDeProducto(productoId);
     }
 }

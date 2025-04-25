@@ -5,6 +5,7 @@ import com.devsteve.product_mservice.application.ports.in.producto.crud.BuscarPr
 import com.devsteve.product_mservice.domain.model.ImagenModel;
 import com.devsteve.product_mservice.domain.ports.out.ImagenRepository;
 import com.devsteve.product_mservice.domain.ports.out.ImagenStoragePort;
+import com.devsteve.product_mservice.domain.ports.out.ProductoValidatorPort;
 import com.devsteve.product_mservice.shared.exceptions.ImageUploadException;
 import com.devsteve.product_mservice.shared.exceptions.ResourceNotFoundException;
 import com.devsteve.product_mservice.shared.utils.ImagenUtils;
@@ -22,19 +23,19 @@ public class ImagenService implements
         BuscarImagenPorIdUseCase {
     private final ImagenRepository imagenRepository;
     private final ImagenStoragePort imagenStoragePort;
-    private final BuscarProductoPorIdUseCase buscarProductoPorIdUseCase;
+    private final ProductoValidatorPort productoValidatorPort;
 
     public ImagenService(ImagenRepository imagenRepository,
                          ImagenStoragePort imagenStoragePort,
-                         BuscarProductoPorIdUseCase buscarProductoPorIdUseCase) {
+                         ProductoValidatorPort productoValidatorPort) {
         this.imagenRepository = imagenRepository;
         this.imagenStoragePort = imagenStoragePort;
-        this.buscarProductoPorIdUseCase = buscarProductoPorIdUseCase;
+        this.productoValidatorPort = productoValidatorPort;
     }
 
     @Override
     public ImagenModel subirImagen(Long productoId, MultipartFile archivo) {
-        buscarProductoPorIdUseCase.buscarPorId(productoId);                 // valida producto existente
+        productoValidatorPort.validarProductoExistente(productoId);                 // valida producto existente
         ImagenUtils.validarArchivo(archivo);                     // valida formato y tamaño
 
         String key = UUID.randomUUID() + "-" + archivo.getOriginalFilename();
@@ -54,7 +55,7 @@ public class ImagenService implements
 
     @Override
     public List<ImagenModel> listarImagenes(Long productoId) {
-        buscarProductoPorIdUseCase.buscarPorId(productoId); // valida que existe
+        productoValidatorPort.validarProductoExistente(productoId); // valida que existe
         return imagenRepository.buscarPorProductoId(productoId);
     }
 
@@ -75,7 +76,7 @@ public class ImagenService implements
 
     @Override
     public void eliminarTodasDeProducto(Long productoId) {
-        buscarProductoPorIdUseCase.buscarPorId(productoId);
+        productoValidatorPort.validarProductoExistente(productoId);
         imagenRepository.buscarPorProductoId(productoId).forEach(this::eliminarFisicaYLogica);
     }
 

@@ -3,11 +3,11 @@ package com.devsteve.product_mservice.application.services;
 import com.devsteve.product_mservice.application.ports.in.categoria.BuscarCategoriaPorIdUseCase;
 import com.devsteve.product_mservice.application.ports.in.marca.BuscarMarcaPorIdUseCase;
 import com.devsteve.product_mservice.application.ports.in.producto.crud.*;
+import com.devsteve.product_mservice.application.ports.in.producto.delegate.EliminarImagenesProductoDelegate;
 import com.devsteve.product_mservice.application.ports.in.producto.filters.*;
 import com.devsteve.product_mservice.domain.model.ProductoModel;
 import com.devsteve.product_mservice.domain.model.enums.EstadoProducto;
 import com.devsteve.product_mservice.domain.ports.out.ProductoRepository;
-import com.devsteve.product_mservice.shared.exceptions.DuplicateResourceException;
 import com.devsteve.product_mservice.shared.exceptions.MultipleErrorsException;
 import com.devsteve.product_mservice.shared.exceptions.ResourceNotFoundException;
 
@@ -27,12 +27,16 @@ public class ProductoService implements
     private final BuscarMarcaPorIdUseCase buscarMarcaPorIdUseCase;
     private final BuscarCategoriaPorIdUseCase buscarCategoriaPorIdUseCase;
 
+    private final EliminarImagenesProductoDelegate eliminarImagenesProductoDelegate;
+
     public ProductoService(ProductoRepository productoRepository,
                            BuscarMarcaPorIdUseCase buscarMarcaPorIdUseCase,
-                           BuscarCategoriaPorIdUseCase buscarCategoriaPorIdUseCase) {
+                           BuscarCategoriaPorIdUseCase buscarCategoriaPorIdUseCase,
+                           EliminarImagenesProductoDelegate eliminarImagenesProductoDelegate) {
         this.productoRepository = productoRepository;
         this.buscarMarcaPorIdUseCase = buscarMarcaPorIdUseCase;
         this.buscarCategoriaPorIdUseCase = buscarCategoriaPorIdUseCase;
+        this.eliminarImagenesProductoDelegate = eliminarImagenesProductoDelegate;
     }
 
     @Override
@@ -137,6 +141,8 @@ public class ProductoService implements
     @Override
     public void eliminarProducto(Long id) {
         buscarPorId(id);
+        // Eliminar todas las imagenes asociadas al producto
+        eliminarImagenesProductoDelegate.eliminarImagenesDeProducto(id);
         productoRepository.eliminar(id);
     }
 

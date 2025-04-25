@@ -3,6 +3,7 @@ package com.devsteve.product_mservice.infra.config;
 import com.devsteve.product_mservice.application.ports.in.categoria.BuscarCategoriaPorIdUseCase;
 import com.devsteve.product_mservice.application.ports.in.marca.BuscarMarcaPorIdUseCase;
 import com.devsteve.product_mservice.application.ports.in.producto.crud.*;
+import com.devsteve.product_mservice.application.ports.in.producto.delegate.EliminarImagenesProductoDelegate;
 import com.devsteve.product_mservice.application.ports.in.producto.filters.*;
 import com.devsteve.product_mservice.application.services.ProductoService;
 import com.devsteve.product_mservice.domain.ports.out.ProductoRepository;
@@ -14,8 +15,10 @@ public class ProductoBeanConfiguration {
     @Bean
     public ProductoService productoService(ProductoRepository productoRepository,
                                            BuscarMarcaPorIdUseCase buscarMarcaPorIdUseCase,
-                                           BuscarCategoriaPorIdUseCase buscarCategoriaPorIdUseCase) {
-        return new ProductoService(productoRepository, buscarMarcaPorIdUseCase, buscarCategoriaPorIdUseCase);
+                                           BuscarCategoriaPorIdUseCase buscarCategoriaPorIdUseCase,
+                                           EliminarImagenesProductoDelegate eliminarImagenesProductoDelegate) {
+        return new ProductoService(productoRepository, buscarMarcaPorIdUseCase,
+                buscarCategoriaPorIdUseCase, eliminarImagenesProductoDelegate);
     }
 
     @Bean
