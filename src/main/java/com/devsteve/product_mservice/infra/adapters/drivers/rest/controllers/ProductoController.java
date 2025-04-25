@@ -22,9 +22,13 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 import java.util.Optional;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import io.swagger.v3.oas.annotations.Parameter;
 @RestController
 @RequestMapping("/api/productos")
 @RequiredArgsConstructor
+@Tag(name = "Productos", description = "CRUD de productos, con imágenes, marcas y categorías")
 public class ProductoController {
     private final CrearProductoUseCase crearProductoUseCase;
     private final ActualizarProductoUseCase actualizarProductoUseCase;
@@ -42,66 +46,68 @@ public class ProductoController {
     private final ObtenerNombreMarcaUseCase obtenerNombreMarcaUseCase;
     private final ObtenerNombreCategoriaUseCase obtenerNombreCategoriaUseCase;
 
+    @Operation(summary = "Crear un nuevo producto")
     @PostMapping
     public ResponseEntity<ProductoResponse> crearProducto(
             @Valid @RequestBody CreateProductoRequest request) {
-
         ProductoModel model = productoModelMapper.toDomain(request);
         ProductoModel creado = crearProductoUseCase.crearProducto(model);
         return ResponseEntity.ok(mapearProductoConNombres(creado));
     }
 
+    @Operation(summary = "Listar todos los productos paginados")
     @GetMapping
     public ResponseEntity<List<ProductoResponse>> listarProductos(
-            @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int size
-    ) {
+            @Parameter(description = "Número de página", example = "0") @RequestParam(defaultValue = "0") int page,
+            @Parameter(description = "Tamaño de página", example = "10") @RequestParam(defaultValue = "10") int size) {
         List<ProductoModel> productos = listarProductosUseCase.listarProductos(page, size);
         List<ProductoResponse> responses = productos.stream()
                 .map(this::mapearProductoConNombres)
                 .toList();
-
         return ResponseEntity.ok(responses);
     }
 
+    @Operation(summary = "Buscar un producto por ID")
     @GetMapping("/{id}")
-    public ResponseEntity<ProductoResponse> buscarPorId(@PathVariable Long id) {
+    public ResponseEntity<ProductoResponse> buscarPorId(
+            @Parameter(description = "ID del producto", example = "1") @PathVariable Long id) {
         ProductoModel producto = buscarProductoPorIdUseCase.buscarPorId(id);
         return ResponseEntity.ok(mapearProductoConNombres(producto));
     }
 
+    @Operation(summary = "Actualizar un producto por ID")
     @PutMapping("/{id}")
     public ResponseEntity<ProductoResponse> actualizarProducto(
-            @PathVariable Long id,
-            @Valid @RequestBody UpdateProductoRequest request
-    ) {
+            @Parameter(description = "ID del producto a actualizar", example = "1") @PathVariable Long id,
+            @Valid @RequestBody UpdateProductoRequest request) {
         ProductoModel updateModel = productoModelMapper.toDomain(request);
         ProductoModel actualizado = actualizarProductoUseCase.actualizarProducto(id, updateModel);
         return ResponseEntity.ok(mapearProductoConNombres(actualizado));
     }
 
+    @Operation(summary = "Eliminar un producto por ID (incluye imágenes asociadas)")
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> eliminarProducto(@PathVariable Long id) {
+    public ResponseEntity<Void> eliminarProducto(
+            @Parameter(description = "ID del producto a eliminar", example = "1") @PathVariable Long id) {
         eliminarProductoUseCase.eliminarProducto(id);
         return ResponseEntity.noContent().build();
     }
 
+    @Operation(summary = "Buscar productos por filtros (nombre, marca, categoría, estado)")
     @GetMapping("/filtrar")
     public ResponseEntity<List<ProductoResponse>> buscarPorFiltros(
-            @RequestParam Optional<String> nombre,
-            @RequestParam Optional<Long> marcaId,
-            @RequestParam Optional<Long> categoriaId,
-            @RequestParam Optional<EstadoProducto> estado,
-            @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int size
-    ) {
+            @Parameter(description = "Nombre del producto") @RequestParam Optional<String> nombre,
+            @Parameter(description = "ID de la marca") @RequestParam Optional<Long> marcaId,
+            @Parameter(description = "ID de la categoría") @RequestParam Optional<Long> categoriaId,
+            @Parameter(description = "Estado del producto") @RequestParam Optional<EstadoProducto> estado,
+            @Parameter(description = "Número de página", example = "0") @RequestParam(defaultValue = "0") int page,
+            @Parameter(description = "Tamaño de página", example = "10") @RequestParam(defaultValue = "10") int size) {
         List<ProductoModel> productos = buscarProductosPorFiltrosUseCase
                 .buscarConFiltros(nombre, marcaId, categoriaId, estado, page, size);
 
         List<ProductoResponse> responses = productos.stream()
                 .map(this::mapearProductoConNombres)
                 .toList();
-
         return ResponseEntity.ok(responses);
     }
 
